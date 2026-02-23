@@ -15,40 +15,43 @@ import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from './supabaseClient';
-import { io } from 'socket.io-client';
 
 L.Marker.prototype.options.icon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
 
 function LiveMap() {
-  const [buses, setBuses] = useState({});
+  const [buses, setBuses] = useState([]);
+
   useEffect(() => {
-    // Load last known positions from Supabase
-    supabase.from('live_bus_location').select('*').then(({ data }) => {
-      if (data) {
-        const map = {};
-        data.forEach(b => { map[b.driver_id] = b; });
-        setBuses(map);
-      }
-    });
-    // Live updates via socket
-    const socket = io('https://campus-zone-backend-1.onrender.com');
-    socket.on('admin-map-update', ({ driverId, lat, lng }) => {
-      setBuses(prev => ({ ...prev, [driverId]: { ...prev[driverId], driver_id: driverId, lat, lng } }));
-    });
-    return () => socket.disconnect();
+    const load = async () => {
+      const { data } = await supabase.from('live_bus_location').select('*');
+      if (data) setBuses(data);
+    };
+    load();
+
+    const channel = supabase
+      .channel('live-bus-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'live_bus_location' }, () => load())
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
   }, []);
 
-  const entries = Object.values(buses).filter(b => b.lat && b.lng);
+  const activeBuses = buses.filter(b => b.lat && b.lng);
+
   return (
     <div style={{ height: '100vh', width: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '20px 24px', background: '#0f172a', color: '#fff', fontWeight: 700, fontSize: 18 }}>
-        🚌 Live Bus Tracker — {entries.length} bus{entries.length !== 1 ? 'es' : ''} active
+      <div style={{ padding: '16px 24px', background: '#0f172a', color: '#fff', fontWeight: 700, fontSize: 18 }}>
+        🚌 Live Bus Tracker — {activeBuses.length} bus{activeBuses.length !== 1 ? 'es' : ''} active
       </div>
       <MapContainer center={[11.0168, 76.9558]} zoom={13} style={{ flex: 1 }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {entries.map(b => (
+        {activeBuses.map(b => (
           <Marker key={b.driver_id} position={[b.lat, b.lng]}>
-            <Popup>Driver: {b.driver_id}<br />Speed: {b.speed || 0} km/h</Popup>
+            <Popup>
+              Driver ID: {b.driver_id}<br />
+              Speed: {b.speed || 0} km/h<br />
+              Updated: {new Date(b.last_updated).toLocaleTimeString()}
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
