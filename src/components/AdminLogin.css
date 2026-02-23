@@ -357,15 +357,15 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: brand-sweep 3s linear infinite;
+  animation: brand-sweep 8s linear infinite;
 }
 
 @keyframes brand-sweep {
   0% {
-    background-position: 100% 0;
+    background-position: 200% 0;
   }
 
   100% {
-    background-position: -100% 0;
+    background-position: -200% 0;
   }
 }

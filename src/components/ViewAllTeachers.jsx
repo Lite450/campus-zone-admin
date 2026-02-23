@@ -1,88 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from '../service';
+import { supabase } from '../supabaseClient';
 import { Search, MapPin, X, CheckCircle, Clock, Users, BookOpen, Mail, UserCheck } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './ViewAllTeachers.css';
-
-// --- Leaflet Icon Fix ---
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
+let DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
 L.Marker.prototype.options.icon = DefaultIcon;
 
 function ViewAllTeachers() {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Map Modal States
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [showMap, setShowMap] = useState(false);
 
-  // Student List Modal States
-  const [studentList, setStudentList] = useState([]);
-  const [showStudentModal, setShowStudentModal] = useState(false);
-  const [currentTeacherName, setCurrentTeacherName] = useState('');
-
-  useEffect(() => {
-    fetchTeachers();
-  }, []);
+  useEffect(() => { fetchTeachers(); }, []);
 
   const fetchTeachers = async () => {
     try {
-      const response = await axiosInstance.get('/teachers');
-      setTeachers(response.data || []);
+      const { data, error } = await supabase
+        .from('app_users')
+        .select('id, name, email, is_approved, home_lat, home_lng, role')
+        .eq('role', 'teacher')
+        .order('name');
+      if (error) throw error;
+      setTeachers(data || []);
     } catch (err) {
-      console.error("Error fetching teachers:", err);
+      console.error('Error fetching teachers:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenMap = (teacher) => {
-    setSelectedTeacher(teacher);
-    setShowMap(true);
-  };
-
-  const handleOpenStudents = (teacher) => {
-    setStudentList(teacher.assignedStudents || []);
-    setCurrentTeacherName(teacher.name);
-    setShowStudentModal(true);
-  };
-
-  const filteredTeachers = teachers.filter(t => 
-    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTeachers = teachers.filter(t =>
+    t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="teachers-page">
       <div className="page-header">
         <div className="header-info">
-          <div className="icon-badge">
-            <BookOpen size={22} color="#8b5cf6" />
-          </div>
+          <div className="icon-badge"><BookOpen size={22} color="#8b5cf6" /></div>
           <div>
             <h1>Faculty Directory</h1>
-            <p>Manage all teaching staff and assigned student loads</p>
+            <p>All teachers registered in Campus Zone</p>
           </div>
         </div>
-
         <div className="search-box">
           <Search size={18} className="s-icon" />
-          <input 
-            type="text" 
-            placeholder="Search faculty..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <input type="text" placeholder="Search faculty..." value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
       </div>
 
@@ -92,52 +63,49 @@ function ViewAllTeachers() {
             <div className="pulse-loader"></div>
             <p>Loading Faculty Data...</p>
           </div>
+        ) : filteredTeachers.length === 0 ? (
+          <div className="loading-ui">
+            <UserCheck size={48} color="#334155" />
+            <p>No teachers found. Teachers register via the Campus App.</p>
+          </div>
         ) : (
           <table className="faculty-table">
             <thead>
               <tr>
                 <th>Teacher Details</th>
                 <th>Account Status</th>
-                <th>Assigned Students</th>
+                <th>Email</th>
                 <th>Location</th>
               </tr>
             </thead>
             <tbody>
               {filteredTeachers.map((teacher) => (
-                <tr key={teacher._id}>
+                <tr key={teacher.id}>
                   <td>
                     <div className="teacher-profile">
-                      <div className="t-avatar">{teacher.name.charAt(0)}</div>
+                      <div className="t-avatar">{teacher.name?.charAt(0)}</div>
                       <div className="t-info">
                         <span className="t-name">{teacher.name}</span>
-                        <span className="t-email">{teacher.email}</span>
+                        <span className="t-email">{teacher.id?.substring(0, 8)}...</span>
                       </div>
                     </div>
                   </td>
-
                   <td>
-                    {teacher.isApproved ? (
+                    {teacher.is_approved ? (
                       <span className="status-tag approved"><CheckCircle size={12} /> Approved</span>
                     ) : (
                       <span className="status-tag pending"><Clock size={12} /> Pending</span>
                     )}
                   </td>
-
                   <td>
-                    {/* CLICKABLE STUDENT COUNT */}
-                    <button 
-                        className="student-count-badge" 
-                        onClick={() => handleOpenStudents(teacher)}
-                        title="Click to view students"
-                    >
-                      <Users size={14} />
-                      <span>{teacher.assignedStudents?.length || 0} Students</span>
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Mail size={14} color="#94a3b8" />
+                      <span style={{ fontSize: 13, color: '#94a3b8' }}>{teacher.email}</span>
+                    </div>
                   </td>
-
                   <td>
-                    {teacher.homeLocation?.lat !== 0 ? (
-                      <button className="loc-btn" onClick={() => handleOpenMap(teacher)}>
+                    {teacher.home_lat && teacher.home_lat !== 0 ? (
+                      <button className="loc-btn" onClick={() => { setSelectedTeacher(teacher); setShowMap(true); }}>
                         <MapPin size={14} /> View Map
                       </button>
                     ) : (
@@ -151,7 +119,6 @@ function ViewAllTeachers() {
         )}
       </div>
 
-      {/* --- MODAL 1: MAP --- */}
       {showMap && selectedTeacher && (
         <div className="modal-overlay">
           <div className="modal-card map-modal">
@@ -160,67 +127,12 @@ function ViewAllTeachers() {
               <button className="close-modal" onClick={() => setShowMap(false)}><X size={20} /></button>
             </div>
             <div className="modal-body map-body">
-              <MapContainer center={[selectedTeacher.homeLocation.lat, selectedTeacher.homeLocation.lng]} zoom={14} className="leaflet-map">
+              <MapContainer center={[selectedTeacher.home_lat, selectedTeacher.home_lng]} zoom={14} className="leaflet-map">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[selectedTeacher.homeLocation.lat, selectedTeacher.homeLocation.lng]}>
+                <Marker position={[selectedTeacher.home_lat, selectedTeacher.home_lng]}>
                   <Popup>{selectedTeacher.name}</Popup>
                 </Marker>
               </MapContainer>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- MODAL 2: ASSIGNED STUDENTS LIST --- */}
-      {showStudentModal && (
-        <div className="modal-overlay">
-          <div className="modal-card student-modal">
-            <div className="modal-header">
-              <div className="modal-title-combined">
-                <Users size={20} color="#8b5cf6" />
-                <h3>Students assigned to {currentTeacherName}</h3>
-              </div>
-              <button className="close-modal" onClick={() => setShowStudentModal(false)}><X size={20} /></button>
-            </div>
-            <div className="modal-body scrollable-body">
-              {studentList.length > 0 ? (
-                <table className="inner-student-table">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Email</th>
-                            <th>Campus Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {studentList.map(student => (
-                            <tr key={student._id}>
-                                <td>
-                                    <div className="student-info-cell">
-                                        <div className="s-mini-avatar">{student.name.charAt(0)}</div>
-                                        <span>{student.name}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="email-link">
-                                        <Mail size={12} /> {student.email}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`mini-status ${student.campusAttendance?.status}`}>
-                                        {student.campusAttendance?.status || 'absent'}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-              ) : (
-                <div className="empty-students">
-                    <UserCheck size={48} color="#334155" />
-                    <p>No students have been accepted by this teacher yet.</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

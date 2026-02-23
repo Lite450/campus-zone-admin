@@ -9,8 +9,7 @@ const ROLES = [
     { value: 'teacher', label: 'Teacher / Faculty' },
     { value: 'student', label: 'Student' },
     { value: 'driver', label: 'Bus Driver' },
-    { value: 'staff', label: 'Staff / Non-Faculty' },
-    { value: 'owner', label: 'Owner / Co-Owner' },
+    { value: 'non-faculty', label: 'Staff / Non-Faculty' },
 ];
 
 const initialForm = {
@@ -67,21 +66,22 @@ const AddUser = () => {
                 }
             }
 
-            // Insert new user into Supabase
+            // Insert new user into Supabase app_users (Flutter app users)
             const { error: insertError } = await supabase
-                .from('campus_users')
+                .from('app_users')
                 .insert([{
-                    full_name: form.full_name.trim(),
+                    name: form.full_name.trim(),
                     email: form.email.trim().toLowerCase(),
-                    password_hash: form.password,  // store as-is (plaintext for now; upgrade later)
+                    password: form.password,
                     role: form.role,
-                    register_id: form.register_id.trim().toUpperCase() || null,
-                    phone: form.phone.trim() || null,
-                    department: form.department.trim() || null,
-                    is_active: true,
+                    is_approved: true,  // Admin-added users are auto-approved — can login immediately
+                    home_lat: 0,
+                    home_lng: 0,
+                    teacher_request_status: 'none',
                 }]);
 
             if (insertError) throw new Error(insertError.message);
+
 
             setSuccess(`✅ User "${form.full_name}" created successfully as ${form.role.toUpperCase()}! They can now log in.`);
             setForm(initialForm);
