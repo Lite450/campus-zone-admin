@@ -1,0 +1,265 @@
+/* AddUser.css — Campus Zone Admin: Add New User Page */
+
+.add-user-page {
+    padding: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ---- Header ---- */
+.add-user-header {
+    margin-bottom: 28px;
+}
+
+.add-user-title-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.add-user-icon {
+    color: #6366f1;
+    margin-top: 4px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
+}
+
+.add-user-title-group h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.add-user-title-group p {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* ---- Card ---- */
+.add-user-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 36px;
+    backdrop-filter: blur(12px);
+}
+
+/* ---- Alerts ---- */
+.add-user-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.add-user-alert--success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+}
+
+.add-user-alert--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+/* ---- Form Layout ---- */
+.add-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.add-user-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.add-user-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-user-field--full {
+    grid-column: 1 / -1;
+}
+
+/* ---- Labels ---- */
+.add-user-field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #64748b;
+}
+
+.required {
+    color: #f87171;
+}
+
+.optional {
+    color: #334155;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 10px;
+}
+
+/* ---- Inputs ---- */
+.add-user-field input,
+.add-user-field select {
+    width: 100%;
+    background: #020617;
+    border: 1px solid #1e293b;
+    padding: 13px 16px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14.5px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-sizing: border-box;
+}
+
+.add-user-field input::placeholder {
+    color: #334155;
+}
+
+.add-user-field input:focus,
+.add-user-field select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.add-user-field select option {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+/* ---- Role Badge Preview ---- */
+.role-badge-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 700;
+    width: fit-content;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    color: #818cf8;
+}
+
+.role-badge--admin {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+}
+
+.role-badge--owner {
+    background: rgba(234, 179, 8, 0.1);
+    border-color: rgba(234, 179, 8, 0.25);
+    color: #fde68a;
+}
+
+.role-badge--teacher {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+}
+
+.role-badge--student {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.25);
+    color: #818cf8;
+}
+
+.role-badge--driver {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.25);
+    color: #93c5fd;
+}
+
+.role-badge--staff {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.25);
+    color: #c4b5fd;
+}
+
+/* ---- Submit Button ---- */
+.add-user-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    margin-top: 8px;
+    background: #6366f1;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.add-user-submit-btn:hover:not(:disabled) {
+    background: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.35);
+}
+
+.add-user-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ---- Spinner ---- */
+.add-user-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin-user 0.7s linear infinite;
+}
+
+@keyframes spin-user {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 700px) {
+    .add-user-page {
+        padding: 16px;
+    }
+
+    .add-user-card {
+        padding: 20px;
+    }
+
+    .add-user-row {
+        grid-template-columns: 1fr;
+    }
+}

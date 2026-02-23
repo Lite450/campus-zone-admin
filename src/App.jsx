@@ -7,6 +7,8 @@ import ViewAllTeachers from './components/ViewAllTeachers';
 import UsersRequest from './components/UsersRequest';
 import Drivers from './components/Drivers';
 import AdminBroadcast from './components/AdminBroadcast';
+import AddUser from './components/AddUser';
+
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <Route path="requests" element={<UsersRequest />} />
         <Route path="drivers" element={<Drivers />} />
         <Route path="broadcast" element={<AdminBroadcast />} />
+        <Route path="add-user" element={<AddUser />} />
+
       </Route>
     </Routes>
   );
