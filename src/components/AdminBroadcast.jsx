@@ -36,7 +36,7 @@ function AdminBroadcast() {
     };
 
     try {
-      const response = await axios.post('https://collage-backend-123.vercel.app/api/admin/broadcast', payload);
+      const response = await axios.post('https://campus-zone-backend-1.onrender.com/api/admin/broadcast', payload);
 
       setStatus({ 
         type: 'success', 
